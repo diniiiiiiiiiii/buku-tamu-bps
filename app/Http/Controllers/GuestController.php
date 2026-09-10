@@ -20,15 +20,11 @@ class GuestController extends Controller
         return $map[$path] ?? 'direct';
     }
 
-    // Menampilkan form buku tamu (dipakai oleh 4 URL: /, /whatsapp, /instagram, /facebook)
+    // Menampilkan form buku tamu
     public function create(Request $request)
     {
         $source = $this->sourceFromPath($request->path());
-
-        // Simpan source ke session, bukan ke form.
-        // Ini mencegah tamu mengubah source lewat hidden input di form.
         session(['source' => $source]);
-
         return view('guests.create');
     }
 
@@ -39,12 +35,11 @@ class GuestController extends Controller
             'nama' => 'required|string|max:255',
             'no_hp' => 'required|digits_between:10,13',
             'email' => 'required|email',
-            'instansi' => 'nullable|string|max:255',
+            'instansi' => 'required|string|max:255',
             'tujuan_kunjungan' => 'required|string|max:255',
             'tanggal_kunjungan' => 'required|date',
         ]);
 
-        // Source diambil dari session (server-side), bukan dari input form
         $validated['source'] = session('source', 'direct');
 
         Guest::create($validated);
@@ -52,7 +47,7 @@ class GuestController extends Controller
         return back()->with('success', 'Data kunjungan berhasil disimpan. Terima kasih atas kunjungan Anda.');
     }
 
-    // Menampilkan daftar tamu untuk admin, dengan fitur search nama
+    // Menampilkan daftar tamu untuk admin
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -71,6 +66,58 @@ class GuestController extends Controller
             'guests' => $guests,
             'search' => $search,
             'source' => $source,
+        ]);
+    }
+
+    //Ekspor data dalam excel
+    public function export(Request $request)
+    {
+        $search = $request->input('search');
+        $source = $request->input('source');
+
+        $guests = Guest::when($search, function ($query) use ($search) {
+            return $query->where('nama', 'like', '%' . $search . '%');
+        })
+            ->when($source, function ($query) use ($source) {
+                return $query->where('source', $source);
+            })
+            ->orderBy('tanggal_kunjungan', 'desc')
+            ->get();
+
+        $filename = 'Data_Tamu_BPS_Kota_Bukittinggi.csv';
+
+        return response()->streamDownload(function () use ($guests) {
+            $file = fopen('php://output', 'w');
+
+            fwrite($file, "\xEF\xBB\xBF");
+
+            fputcsv($file, [
+                'No',
+                'Nama',
+                'No. HP',
+                'Email',
+                'Instansi',
+                'Tujuan Kunjungan',
+                'Tanggal Kunjungan',
+                'Sumber'
+            ]);
+
+            foreach ($guests as $index => $guest) {
+                fputcsv($file, [
+                    $index + 1,
+                    $guest->nama,
+                    $guest->no_hp,
+                    $guest->email,
+                    $guest->instansi ?: '-',
+                    $guest->tujuan_kunjungan,
+                    $guest->tanggal_kunjungan,
+                    $guest->source
+                ]);
+            }
+
+            fclose($file);
+        }, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
     }
 }

@@ -270,6 +270,22 @@
             color: #c4cbd0;
             background: #f8fafb;
         }
+        .btn-export {
+            height: 38px;
+            border-radius: 6px;
+            padding: 0 16px;
+            background: #18794e;
+            color: white;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-export:hover {
+            background: #12613e;
+        }
         
         /* Mobile */
         @media (max-width: 700px) {
@@ -316,6 +332,11 @@
             }
             .pagination {
                 flex-wrap: wrap;
+            }
+            .btn-search,
+            .btn-reset,
+            .btn-export {
+                width: 100%;
             }
         }
     </style>
@@ -372,6 +393,9 @@
                     </button>
                     <a href="{{ route('guests.index') }}" class="btn-reset">
                         Reset
+                    </a>
+                    <a href="{{ route('guests.export', ['search' => $search ?? '', 'source' => $source ?? '']) }}" class="btn-export">
+                        Export Excel
                     </a>
 
                 </form>

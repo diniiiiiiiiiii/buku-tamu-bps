@@ -31,8 +31,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
-
     Route::get('/guests', [GuestController::class, 'index'])
         ->name('guests.index');
+    Route::get('/guests/export', [GuestController::class, 'export'])
+        ->name('guests.export');
+    
 
 });
