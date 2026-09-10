@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ asset('logo-bps.png') }}">
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <title>Daftar Tamu - Buku Tamu BPS</title>
     <style>
         * {
@@ -126,6 +124,20 @@
         .search-input:focus {
             border-color: #005b96;
         }
+        .source-filter {
+            height: 38px;
+            min-width: 140px;
+            border: 1px solid #d5dee6;
+            border-radius: 6px;
+            padding: 0 10px;
+            outline: none;
+            font-size: 12px;
+            color: #4b5563;
+            background: white;
+        }
+        .source-filter:focus {
+            border-color: #005b96;
+        }
         .btn-search,
         .btn-reset {
             height: 38px;
@@ -143,17 +155,14 @@
             color: white;
             border: none;
         }
-
         .btn-search:hover {
             background: #003b5c;
         }
-
         .btn-reset {
             background: white;
             color: #59636d;
             border: 1px solid #d5dee6;
         }
-
         .btn-reset:hover {
             background: #f5f7f9;
             border-color: #bfcbd4;
@@ -261,13 +270,14 @@
             color: #c4cbd0;
             background: #f8fafb;
         }
+        
+        /* Mobile */
         @media (max-width: 700px) {
             .header,
             .navbar {
                 height: 52px;
                 padding: 0 18px;
             }
-
             .header-title,
             .brand {
                 font-size: 13px;
@@ -282,7 +292,7 @@
             }
             .btn-dashboard {
                 width: 100%;
-                justify-content: center;
+                text-align: center;
             }
             .card-header {
                 align-items: flex-start;
@@ -292,7 +302,11 @@
             .search-form {
                 flex-direction: column;
             }
-            .btn-search {
+            .source-filter {
+                width: 100%;
+            }
+            .btn-search,
+            .btn-reset {
                 width: 100%;
             }
             .pagination-area {
@@ -309,17 +323,17 @@
 
 <body>
     <nav class="navbar">
-        <div class="brand">
-            Buku Tamu Digital — BPS Kota Bukittinggi
-        </div>
+        <div class="brand"> Buku Tamu Digital — BPS Kota Bukittinggi </div>
     </nav>
-
     <main class="container">
         <div class="page-header">
             <div>
                 <h1 class="page-title">
                     Daftar Tamu
                 </h1>
+                <p class="page-description">
+                    Data tamu yang telah melakukan kunjungan ke BPS Kota Bukittinggi
+                </p>
             </div>
 
             <a href="{{ route('dashboard') }}" class="btn-dashboard">
@@ -339,27 +353,27 @@
             </div>
 
             <div class="search-area">
-                <form action="{{ route('guests.index') }}"
-                      method="GET"
-                      class="search-form">
+                <form action="{{ route('guests.index') }}" method="GET" class="search-form">
                     <div class="search-wrapper">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input
-                            type="text"
-                            name="search"
-                            class="search-input"
-                            placeholder="Cari berdasarkan nama tamu..."
-                            value="{{ $search ?? '' }}">
+                        <input type="text" name="search" class="search-input" placeholder="Cari berdasarkan nama tamu..." value="{{ $search ?? '' }}">
                     </div>
+
+                    <select name="source" class="source-filter">
+                        <option value="">Semua Sumber</option>
+                        <option value="direct" {{ ($source ?? '') == 'direct' ? 'selected' : '' }}>Direct</option>
+                        <option value="whatsapp" {{ ($source ?? '') == 'whatsapp' ? 'selected' : '' }}>WhatsApp</option>
+                        <option value="instagram" {{ ($source ?? '') == 'instagram' ? 'selected' : '' }}>Instagram</option>
+                        <option value="facebook" {{ ($source ?? '') == 'facebook' ? 'selected' : '' }}>Facebook</option>
+                    </select>
 
                     <button type="submit" class="btn-search">
                         Cari
                     </button>
-
                     <a href="{{ route('guests.index') }}" class="btn-reset">
                         Reset
-                    </a>    
-                                      
+                    </a>
+
                 </form>
             </div>
 
@@ -377,7 +391,7 @@
                             <th>Sumber</th>
                         </tr>
                     </thead>
-
+                    
                     <tbody>
                         @forelse ($guests as $guest)
                             <tr>
@@ -418,10 +432,8 @@
                                 <td colspan="8">
                                     <div class="empty">
                                         <i class="fa-regular fa-folder-open"></i>
-                                        @if ($search)
-                                            Data tamu dengan nama
-                                            "<strong>{{ $search }}</strong>"
-                                            tidak ditemukan.
+                                        @if ($search || $source)
+                                            Data tamu yang sesuai dengan filter tidak ditemukan.
                                         @else
                                             Belum ada data tamu.
                                         @endif
@@ -440,8 +452,8 @@
                         {{ $guests->firstItem() }}–{{ $guests->lastItem() }}
                         dari {{ $guests->total() }} data
                     </div>
-
                     <div class="pagination">
+
                         @if ($guests->onFirstPage())
                             <span class="disabled">
                                 <i class="fa-solid fa-chevron-left"></i>
@@ -473,11 +485,13 @@
                                 <i class="fa-solid fa-chevron-right"></i>
                             </span>
                         @endif
+
                     </div>
                 </div>
             @endif
 
         </div>
     </main>
+
 </body>
 </html>

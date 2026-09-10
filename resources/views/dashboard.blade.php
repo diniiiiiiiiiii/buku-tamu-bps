@@ -268,7 +268,7 @@
             font-size: 14px;
         }
 
-        /* Responsif */
+        /* Mobile */
         @media (max-width: 700px) {
             .header,
             .navbar {

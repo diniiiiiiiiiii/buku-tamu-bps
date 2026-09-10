@@ -356,6 +356,16 @@
             this.value = this.value.replace(/\D/g, '').slice(0, 13);
         });
     </script>
+
+    <script>
+        const successMessage = document.querySelector('.success');
+
+        if (successMessage) {
+            setTimeout(function () {
+                successMessage.style.display = 'none';
+            }, 5000);
+        }
+    </script>
     
 </body>
 </html>

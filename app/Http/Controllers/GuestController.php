@@ -49,17 +49,20 @@ class GuestController extends Controller
 
         Guest::create($validated);
 
-        return back()->with('success', 'Data tamu berhasil disimpan.');
+        return back()->with('success', 'Data kunjungan berhasil disimpan. Terima kasih atas kunjungan Anda.');
     }
 
     // Menampilkan daftar tamu untuk admin, dengan fitur search nama
     public function index(Request $request)
     {
         $search = $request->input('search');
-
+        $source = $request->input('source');
         $guests = Guest::when($search, function ($query) use ($search) {
-            $query->where('nama', 'like', '%' . $search . '%');
+            return $query->where('nama', 'like', '%' . $search . '%');
         })
+            ->when($source, function ($query) use ($source) {
+                return $query->where('source', $source);
+            })
             ->orderBy('tanggal_kunjungan', 'desc')
             ->paginate(10)
             ->withQueryString();
@@ -67,6 +70,7 @@ class GuestController extends Controller
         return view('guests.index', [
             'guests' => $guests,
             'search' => $search,
+            'source' => $source,
         ]);
     }
 }
