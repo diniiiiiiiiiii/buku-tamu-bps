@@ -53,12 +53,13 @@ class GuestController extends Controller
         $search = $request->input('search');
         $source = $request->input('source');
         $guests = Guest::when($search, function ($query) use ($search) {
-            return $query->where('nama', 'like', '%' . $search . '%');
-        })
+                return $query->where('nama', 'like', '%' . $search . '%');
+            })
             ->when($source, function ($query) use ($source) {
                 return $query->where('source', $source);
             })
             ->orderBy('tanggal_kunjungan', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate(10)
             ->withQueryString();
 
@@ -76,12 +77,13 @@ class GuestController extends Controller
         $source = $request->input('source');
 
         $guests = Guest::when($search, function ($query) use ($search) {
-            return $query->where('nama', 'like', '%' . $search . '%');
-        })
+                return $query->where('nama', 'like', '%' . $search . '%');
+            })
             ->when($source, function ($query) use ($source) {
                 return $query->where('source', $source);
             })
             ->orderBy('tanggal_kunjungan', 'desc')
+            ->orderBy('id', 'desc')
             ->get();
 
         $filename = 'Data_Tamu_BPS_Kota_Bukittinggi.csv';
